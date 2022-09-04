@@ -3,10 +3,9 @@ const { createReadStream, createWriteStream } = require('fs');
 const { readdir, mkdir, unlink } = require('fs/promises');
 const { join } = require('path');
 
-const source = join(__dirname, 'files');
-const dist = join(__dirname, 'files-copy');
-
 const copyDir = async (source, dist) => {
+  source = join(__dirname, source);
+  dist = join(__dirname, dist);
   try {
     await mkdir(dist, { recursive: true });
     const readSource = await readdir(source);
@@ -43,4 +42,6 @@ const trackFiles = async (source, dist) => {
   }
 };
 
-copyDir(source, dist);
+copyDir('files', 'files-copy');
+
+module.exports = copyDir;
