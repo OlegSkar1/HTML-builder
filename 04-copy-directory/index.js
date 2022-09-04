@@ -4,20 +4,24 @@ const { readdir, mkdir, unlink } = require('fs/promises');
 const { join } = require('path');
 
 const copyDir = async (source, dist) => {
-  source = join(__dirname, source);
-  dist = join(__dirname, dist);
   try {
     await mkdir(dist, { recursive: true });
-    const readSource = await readdir(source);
+    const readSource = await readdir(source, { withFileTypes: true });
 
     readSource.forEach(async (file) => {
-      const pathToSourceFile = join(source, file);
-      const pathToDistFile = join(dist, file);
+      if (file.isDirectory()) {
+        const sourceFolder = join(source, file.name);
+        const distFolder = join(dist, file.name);
+        copyDir(sourceFolder, distFolder);
+      } else {
+        const pathToSourceFile = join(source, file.name);
+        const pathToDistFile = join(dist, file.name);
 
-      const rs = createReadStream(pathToSourceFile);
-      const ws = createWriteStream(pathToDistFile);
+        const rs = createReadStream(pathToSourceFile);
+        const ws = createWriteStream(pathToDistFile);
 
-      await pipeline(rs, ws);
+        await pipeline(rs, ws);
+      }
     });
   } catch (err) {
     console.log(err.message);
@@ -41,7 +45,5 @@ const trackFiles = async (source, dist) => {
     console.log(err.message);
   }
 };
-
-copyDir('files', 'files-copy');
 
 module.exports = copyDir;
