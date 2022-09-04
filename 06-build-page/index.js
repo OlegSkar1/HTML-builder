@@ -1,17 +1,21 @@
 const copyDir = require('../04-copy-directory');
 const mergeFiles = require('../05-merge-styles');
 const { join } = require('path');
-const { readFile } = require('fs/promises');
+const { mkdir } = require('fs/promises');
 
-const source = join(__dirname, 'assets');
-const dist = join(__dirname, 'project-dist/assets');
+const dist = join(__dirname, 'project-dist');
+const sourceAssets = join(__dirname, 'assets');
+const distAssets = join(dist, 'assets');
+const sourceStyles = join(__dirname, 'styles');
+const distStyles = join(dist, 'style.css');
 
 const createApp = async () => {
-  copyDir(source, dist);
-  // try {
-  // } catch (err) {
-  //   console.log(err.message);
-  // }
+  try {
+    await copyDir(sourceAssets, distAssets);
+    await mergeFiles(sourceStyles, distStyles);
+  } catch (err) {
+    await mkdir(dist);
+  }
 };
 
 createApp();

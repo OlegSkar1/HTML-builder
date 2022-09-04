@@ -3,14 +3,11 @@ const { createReadStream, createWriteStream } = require('fs');
 const { readdir, stat, unlink } = require('fs/promises');
 const { pipeline } = require('stream/promises');
 
-const mergeFiles = async (source, dist, distFileName) => {
-  source = join(__dirname, source);
-  dist = join(__dirname, dist);
-  const pathToBundle = join(dist, distFileName);
+const mergeFiles = async (source, dist) => {
   try {
-    await stat(pathToBundle);
-    await unlink(pathToBundle);
-    mergeFiles('styles', 'project-dist', 'bundle.css');
+    await stat(dist);
+    await unlink(dist);
+    mergeFiles(source, dist);
   } catch (error) {
     const readSource = await readdir(source);
 
@@ -19,15 +16,16 @@ const mergeFiles = async (source, dist, distFileName) => {
       const extName = extname(filePath) === '.css';
       const fileStats = await stat(filePath);
 
-      if (fileStats.isFile() && extName) {
+      if (fileStats.isDirectory()) {
+        const sourceFolder = filePath;
+        mergeFiles(sourceFolder, dist);
+      } else if (fileStats.isFile() && extName) {
         const rs = createReadStream(filePath);
-        const ws = createWriteStream(pathToBundle, { flags: 'a' });
+        const ws = createWriteStream(dist, { flags: 'a' });
         await pipeline(rs, ws);
       }
     });
   }
 };
-
-mergeFiles('styles', 'project-dist', 'bundle.css');
 
 module.exports = mergeFiles;
