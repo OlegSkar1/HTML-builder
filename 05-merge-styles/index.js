@@ -3,8 +3,6 @@ const { createReadStream, createWriteStream } = require('fs');
 const { readdir, stat, unlink } = require('fs/promises');
 const { pipeline } = require('stream/promises');
 
-module.exports = mergeFiles;
-
 const mergeFiles = async (source, dist, distFileName) => {
   source = join(__dirname, source);
   dist = join(__dirname, dist);
@@ -31,3 +29,5 @@ const mergeFiles = async (source, dist, distFileName) => {
 };
 
 mergeFiles('styles', 'project-dist', 'bundle.css');
+
+module.exports = mergeFiles;
